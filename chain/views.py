@@ -3,6 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter
 from .models import ElectronicsChain, Product
 from .serializers import ElectronicsChainSerializer, ProductSerializer
+from .permissions import IsActiveEmployee
 
 
 class ElectronicsChainViewSet(ModelViewSet):
@@ -11,6 +12,7 @@ class ElectronicsChainViewSet(ModelViewSet):
     """
     queryset = ElectronicsChain.objects.all()
     serializer_class = ElectronicsChainSerializer
+    permission_classes = [IsActiveEmployee]
 
     # Добавляем фильтрацию по полю 'country'
     filter_backends = [DjangoFilterBackend, SearchFilter]
@@ -24,5 +26,6 @@ class ProductViewSet(ModelViewSet):
     """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [IsActiveEmployee]
     filter_backends = [SearchFilter]
     search_fields = ['name', 'model']  # Позволяет фильтровать объекты по имени и модели
