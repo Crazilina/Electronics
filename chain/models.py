@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 
+NULLABLE = {'blank': True, 'null': True}
+
 
 class Product(models.Model):
     """
@@ -14,7 +16,7 @@ class Product(models.Model):
     model = models.CharField(max_length=100, verbose_name="Модель продукта")
 
     # Дата выхода продукта на рынок
-    release_date = models.DateField(verbose_name="Дата выхода на рынок")
+    release_date = models.DateField(**NULLABLE, verbose_name="Дата выхода на рынок")
 
     class Meta:
         verbose_name = "Продукт"
@@ -46,35 +48,33 @@ class ElectronicsChain(models.Model):
     node_type = models.CharField(max_length=20, choices=NODE_TYPE_CHOICES, verbose_name="Тип звена")
 
     # Ссылка на поставщика, который находится выше в иерархии
-    supplier = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='clients',
+    supplier = models.ForeignKey('self', on_delete=models.SET_NULL, related_name='clients', **NULLABLE,
                                  verbose_name="Поставщик")
 
     # Контактный email для связи с представителями звена
-    email = models.EmailField(verbose_name="Email для связи")
+    email = models.EmailField(**NULLABLE, verbose_name="Email для связи")
 
     # Страна, в которой находится звено сети
     country = models.CharField(max_length=100, verbose_name="Страна расположения")
 
     # Город, в котором находится звено сети
-    city = models.CharField(max_length=100, verbose_name="Город расположения")
+    city = models.CharField(max_length=100, **NULLABLE, verbose_name="Город расположения")
 
     # Улица, на которой находится звено сети
-    street = models.CharField(max_length=100, verbose_name="Улица расположения")
+    street = models.CharField(max_length=100, **NULLABLE, verbose_name="Улица расположения")
 
     # Номер дома, где расположено звено сети
-    house_number = models.CharField(max_length=20, verbose_name="Номер дома")
+    house_number = models.CharField(max_length=20, **NULLABLE, verbose_name="Номер дома")
 
     # Продукты, которые связаны с этим звеном сети
-    products = models.ManyToManyField(Product, related_name='electronics_chains', verbose_name="Продукты")
+    products = models.ManyToManyField(Product, related_name='electronics_chains', verbose_name="Продукты", blank=True)
 
     # Задолженность перед поставщиком в денежном выражении с точностью до копеек
-    debt = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Задолженность перед поставщиком")
+    debt = models.DecimalField(max_digits=10, decimal_places=2, **NULLABLE,
+                               verbose_name="Задолженность перед поставщиком")
 
     # Дата и время создания записи в базе данных
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата и время создания")
-
-    # Пользователь, ответственный за это звено сети
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Владелец")
 
     class Meta:
         verbose_name = "Звено сети электроники"
